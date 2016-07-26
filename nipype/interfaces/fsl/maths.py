@@ -83,8 +83,8 @@ class ThresholdInputSpec(MathsInput):
                           desc="threshold value")
     direction = traits.Enum("below", "above", usedefault=True,
                             desc="zero-out either below or above thresh value")
-    use_robust_range = traits.Bool(desc="inteperet thresh as percentage (0-100) of robust range")
-    use_nonzero_voxels = traits.Bool(desc="use nonzero voxels to caluclate robust range",
+    use_robust_range = traits.Bool(desc="interpret thresh as percentage (0-100) of robust range")
+    use_nonzero_voxels = traits.Bool(desc="use nonzero voxels to calculate robust range",
                                      requires=["use_robust_range"])
 
 
@@ -111,6 +111,17 @@ class Threshold(MathsCommand):
             return arg
         return super(Threshold, self)._format_arg(name, spec, value)
 
+class StdImageInput(MathsInput):
+
+    dimension = traits.Enum("T", "X", "Y", "Z", usedefault=True, argstr="-%sstd", position=4,
+                            desc="dimension to standard deviate across")
+
+
+class StdImage(MathsCommand):
+    """Use fslmaths to generate a standard deviation in an image across a given dimension.
+    """
+    input_spec = StdImageInput
+    _suffix = "_std"
 
 class MeanImageInput(MathsInput):
 

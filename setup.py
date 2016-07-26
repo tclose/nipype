@@ -274,6 +274,7 @@ pkg_chk('traits', TRAITS_MIN_VERSION)
 pkg_chk('nose', NOSE_MIN_VERSION)
 pkg_chk('future', FUTURE_MIN_VERSION)
 pkg_chk('simplejson', SIMPLEJSON_MIN_VERSION)
+pkg_chk('prov', PROV_MIN_VERSION)
 custom_dateutil_messages = {'missing opt': ('Missing optional package "%s"'
                                             ' provided by package '
                                             '"python-dateutil"')}
@@ -282,6 +283,10 @@ pkg_chk('dateutil', DATEUTIL_MIN_VERSION,
 
 
 def main(**extra_args):
+    thispath, _ = os.path.split(__file__)
+    testdatafiles = [pjoin('testing', 'data', val)
+                     for val in os.listdir(pjoin(thispath, 'nipype', 'testing', 'data'))
+                     if not os.path.isdir(pjoin(thispath, 'nipype', 'testing', 'data', val))]
     setup(name=NAME,
           maintainer=MAINTAINER,
           maintainer_email=MAINTAINER_EMAIL,
@@ -327,12 +332,16 @@ def main(**extra_args):
                     'nipype.interfaces.freesurfer.tests',
                     'nipype.interfaces.fsl',
                     'nipype.interfaces.fsl.tests',
+                    'nipype.interfaces.minc',
+                    'nipype.interfaces.minc.tests',
                     'nipype.interfaces.mipav',
                     'nipype.interfaces.mipav.tests',
                     'nipype.interfaces.mne',
                     'nipype.interfaces.mne.tests',
                     'nipype.interfaces.mrtrix',
+                    'nipype.interfaces.mrtrix3',
                     'nipype.interfaces.mrtrix.tests',
+                    'nipype.interfaces.mrtrix3.tests',
                     'nipype.interfaces.nipy',
                     'nipype.interfaces.nipy.tests',
                     'nipype.interfaces.nitime',
@@ -379,9 +388,10 @@ def main(**extra_args):
                     'nipype.interfaces.vista',
                     'nipype.interfaces.vista.tests',
                     'nipype.pipeline',
+                    'nipype.pipeline.engine',
+                    'nipype.pipeline.engine.tests',
                     'nipype.pipeline.plugins',
                     'nipype.pipeline.plugins.tests',
-                    'nipype.pipeline.tests',
                     'nipype.testing',
                     'nipype.testing.data',
                     'nipype.testing.data.bedpostxout',
@@ -418,12 +428,12 @@ def main(**extra_args):
           # python -- duplicating things into MANIFEST.in but this is admittedly
           # only a workaround to get things started -- not a solution
           package_data={'nipype':
-                        [pjoin('testing', 'data', '*'),
+                         testdatafiles + [
                          pjoin('testing', 'data', 'dicomdir', '*'),
                          pjoin('testing', 'data', 'bedpostxout', '*'),
                          pjoin('testing', 'data', 'tbss_dir', '*'),
                          pjoin('workflows', 'data', '*'),
-                         pjoin('pipeline', 'report_template.html'),
+                         pjoin('pipeline', 'engine', 'report_template.html'),
                          pjoin('external', 'd3.js'),
                          pjoin('interfaces', 'script_templates', '*'),
                          pjoin('interfaces', 'tests', 'realign_json.json')

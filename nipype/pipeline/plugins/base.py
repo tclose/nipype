@@ -13,6 +13,7 @@ import getpass
 import shutil
 from socket import gethostname
 import sys
+import uuid
 from time import strftime, sleep, time
 from traceback import format_exception, format_exc
 from warnings import warn
@@ -21,10 +22,11 @@ import numpy as np
 import scipy.sparse as ssp
 
 
-from ..utils import (nx, dfs_preorder, topological_sort)
-from ..engine import (MapNode, str2bool)
+from ...utils.filemanip import savepkl, loadpkl
+from ...utils.misc import str2bool
+from ..engine.utils import (nx, dfs_preorder, topological_sort)
+from ..engine import MapNode
 
-from nipype.utils.filemanip import savepkl, loadpkl
 
 from ... import logging
 logger = logging.getLogger('workflow')
@@ -56,9 +58,10 @@ def report_crash(node, traceback=None, hostname=None):
                                      exc_traceback)
     timeofcrash = strftime('%Y%m%d-%H%M%S')
     login_name = getpass.getuser()
-    crashfile = 'crash-%s-%s-%s.pklz' % (timeofcrash,
-                                         login_name,
-                                         name)
+    crashfile = 'crash-%s-%s-%s-%s.pklz' % (timeofcrash,
+                                            login_name,
+                                            name,
+                                            str(uuid.uuid4()))
     crashdir = node.config['execution']['crashdump_dir']
     if crashdir is None:
         crashdir = os.getcwd()
@@ -234,6 +237,7 @@ class DistributedPluginBase(PluginBase):
         notrun = []
         while np.any(self.proc_done == False) | \
                 np.any(self.proc_pending == True):
+
             toappend = []
             # trigger callbacks for any pending results
             while self.pending_tasks:
@@ -264,9 +268,15 @@ class DistributedPluginBase(PluginBase):
                                             graph=graph)
             else:
                 logger.debug('Not submitting')
-            sleep(float(self._config['execution']['poll_sleep_duration']))
+            self._wait()
+
         self._remove_node_dirs()
         report_nodes_not_run(notrun)
+
+
+
+    def _wait(self):
+        sleep(float(self._config['execution']['poll_sleep_duration']))
 
     def _get_result(self, taskid):
         raise NotImplementedError
@@ -342,7 +352,10 @@ class DistributedPluginBase(PluginBase):
                                     (self.depidx.sum(axis=0) == 0).__array__())
             if len(jobids) > 0:
                 # send all available jobs
-                logger.info('Submitting %d jobs' % len(jobids[:slots]))
+                if slots:
+                    logger.info('Pending[%d] Submitting[%d] jobs Slots[%d]' % (num_jobs, len(jobids[:slots]), slots))
+                else:
+                    logger.info('Pending[%d] Submitting[%d] jobs Slots[inf]' % (num_jobs, len(jobids)))
                 for jobid in jobids[:slots]:
                     if isinstance(self.procs[jobid], MapNode):
                         try:
@@ -359,7 +372,7 @@ class DistributedPluginBase(PluginBase):
                     self.proc_done[jobid] = True
                     self.proc_pending[jobid] = True
                     # Send job to task manager and add to pending tasks
-                    logger.info('Executing: %s ID: %d' %
+                    logger.info('Submitting: %s ID: %d' %
                                 (self.procs[jobid]._id, jobid))
                     if self._status_callback:
                         self._status_callback(self.procs[jobid], 'start')
@@ -401,6 +414,8 @@ class DistributedPluginBase(PluginBase):
                                 self.proc_pending[jobid] = False
                             else:
                                 self.pending_tasks.insert(0, (tid, jobid))
+                    logger.info('Finished submitting: %s ID: %d' %
+                                (self.procs[jobid]._id, jobid))
             else:
                 break
 
@@ -507,9 +522,6 @@ class SGELikeBatchManagerBase(DistributedPluginBase):
         timed_out = True
         while (time() - t) < timeout:
             try:
-                logger.debug(os.listdir(os.path.realpath(os.path.join(node_dir,
-                                                                      '..'))))
-                logger.debug(os.listdir(node_dir))
                 glob(os.path.join(node_dir, 'result_*.pklz')).pop()
                 timed_out = False
                 break
@@ -633,9 +645,6 @@ class GraphPluginBase(PluginBase):
             return None
         node_dir = self._pending[taskid]
 
-        logger.debug(os.listdir(os.path.realpath(os.path.join(node_dir,
-                                                              '..'))))
-        logger.debug(os.listdir(node_dir))
         glob(os.path.join(node_dir, 'result_*.pklz')).pop()
 
         results_file = glob(os.path.join(node_dir, 'result_*.pklz'))[0]
