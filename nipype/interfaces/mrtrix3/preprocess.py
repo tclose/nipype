@@ -142,7 +142,7 @@ class ResponseSD(MRTrix3Base):
     'dwi2response tournier -fslgrad bvecs bvals -lmax 6,8,10 dwi.mif wm.txt'
     """
 
-    _cmd = 'dwi2response'
+    _cmd = 'dwi2response tax'
     input_spec = ResponseSDInputSpec
     output_spec = ResponseSDOutputSpec
 
