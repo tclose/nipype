@@ -464,12 +464,12 @@ def write_rst_header(header, level=0):
 def write_rst_list(items, prefix=''):
     out = []
     for item in items:
-        out.append(prefix + ' ' + str(item))
+        out.append(prefix + ' ' + unicode(item))
     return '\n'.join(out) + '\n\n'
 
 
 def write_rst_dict(info, prefix=''):
     out = []
     for key, value in sorted(info.items()):
-        out.append(prefix + '* ' + key + ' : ' + str(value))
+        out.append(prefix + '* ' + key + ' : ' + unicode(value))
     return '\n'.join(out) + '\n\n'
