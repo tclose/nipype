@@ -754,10 +754,10 @@ class Node(EngineBase):
             else:
                 fp.writelines(write_rst_dict(rst_dict))
             if hasattr(self.result.runtime, 'merged'):
-                fp.writelines(write_rst_header('Terminal output', level=2).decode('utf-8'))
+                fp.writelines(write_rst_header('Terminal output', level=2))
                 fp.writelines(write_rst_list(self.result.runtime.merged))
             if hasattr(self.result.runtime, 'environ'):
-                fp.writelines(write_rst_header('Environment', level=2).decode('utf-8'))
+                fp.writelines(write_rst_header('Environment', level=2))
                 fp.writelines(write_rst_dict(self.result.runtime.environ))
         fp.close()
 

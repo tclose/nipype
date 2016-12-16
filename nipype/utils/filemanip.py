@@ -458,18 +458,20 @@ rst_levels = ['=', '-', '~', '+']
 
 def write_rst_header(header, level=0):
     return '\n'.join((header, ''.join([rst_levels[level]
-                                       for _ in header]))) + '\n\n'
+                                       for _ in header]))) + '\n\n'.encode(
+        'ascii', errors='replace')
 
 
 def write_rst_list(items, prefix=''):
     out = []
     for item in items:
-        out.append(prefix + ' ' + unicode(item))
+        out.append(prefix + ' ' + item.encode('ascii', errors='replace'))
     return '\n'.join(out) + '\n\n'
 
 
 def write_rst_dict(info, prefix=''):
     out = []
     for key, value in sorted(info.items()):
-        out.append(prefix + '* ' + key + ' : ' + unicode(value))
+        out.append(prefix + '* ' + key + ' : ' +
+                   value.encode('ascii', errors='replace'))
     return '\n'.join(out) + '\n\n'
