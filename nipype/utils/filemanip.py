@@ -465,7 +465,8 @@ def write_rst_header(header, level=0):
 def write_rst_list(items, prefix=''):
     out = []
     for item in items:
-        out.append(prefix + ' ' + item.encode('ascii', errors='replace'))
+        out.append(prefix + ' ' + unicode(item).encode('ascii',
+                                                       errors='replace'))
     return '\n'.join(out) + '\n\n'
 
 
@@ -473,5 +474,5 @@ def write_rst_dict(info, prefix=''):
     out = []
     for key, value in sorted(info.items()):
         out.append(prefix + '* ' + key + ' : ' +
-                   value.encode('ascii', errors='replace'))
+                   unicode(value).encode('ascii', errors='replace'))
     return '\n'.join(out) + '\n\n'
