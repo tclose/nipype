@@ -816,7 +816,7 @@ class FNIRTInputSpec(FSLCommandInputSpec):
                                   desc='Allowed range of Jacobian determinants, default 0.01, 100.0')
     derive_from_ref = traits.Bool(argstr='--refderiv',
                                   desc='If true, ref image is used to calculate derivatives. Default false')
-    intensity_mapping_model = traits.Enum('none', 'global_linear', 'global_non_linear'
+    intensity_mapping_model = traits.Enum('none', 'global_linear', 'global_non_linear',
                                           'local_linear', 'global_non_linear_with_bias',
                                           'local_non_linear', argstr='--intmod=%s',
                                           desc='Model for intensity-mapping')
