@@ -799,9 +799,9 @@ class FNIRTInputSpec(FSLCommandInputSpec):
                                    'in x-, y- and z-direction, default 10, 10, 10')
     spline_order = traits.Int(argstr='--splineorder=%d',
                               desc='Order of spline, 2->Qadratic spline, 3->Cubic spline. Default=3')
-    in_fwhm = traits.List(traits.Int, argstr='--infwhm=%s',
+    in_fwhm = traits.List(traits.Float, argstr='--infwhm=%s',
                           desc='FWHM (in mm) of gaussian smoothing kernel for input volume, default [6, 4, 2, 2]', sep=",")
-    ref_fwhm = traits.List(traits.Int, argstr='--reffwhm=%s',
+    ref_fwhm = traits.List(traits.Float, argstr='--reffwhm=%s',
                            desc='FWHM (in mm) of gaussian smoothing kernel for ref volume, default [4, 2, 0, 0]', sep=",")
     regularization_model = traits.Enum('membrane_energy', 'bending_energy',
                                        argstr='--regmod=%s',
