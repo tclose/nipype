@@ -106,8 +106,6 @@ class ResponseSDInputSpec(MRTrix3BaseInputSpec):
         exists=True, argstr='-mask %s', desc='provide initial mask image')
     max_sh = InputMultiObject(
         traits.Int,
-        value=[8],
-        usedefault=True,
         argstr='-lmax %s',
         sep=',',
         desc=('maximum harmonic degree of response function - single value for '

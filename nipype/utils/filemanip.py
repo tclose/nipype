@@ -322,7 +322,10 @@ def _generate_cifs_table():
     return _parse_mount_table(exit_code, output)
 
 
-_cifs_table = _generate_cifs_table()
+try:
+    _cifs_table = _generate_cifs_table()
+except UnicodeDecodeError:
+    _cifs_table = []
 
 
 def on_cifs(fname):
