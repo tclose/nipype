@@ -38,12 +38,12 @@ class FitTensorInputSpec(MRTrix3BaseInputSpec):
         'rician',
         argstr='-method %s',
         desc=('select method used to perform the fitting'))
-    reg_term = traits.Float(
-        5.e3, usedefault=True,
-        argstr='-regularisation %f',
-        desc=('specify the strength of the regularisation term on the '
-              'magnitude of the tensor elements (default = 5000). This '
-              'only applies to the non-linear methods'))
+#     reg_term = traits.Float(
+#         5.e3, usedefault=True,
+#         argstr='-regularisation %f',
+#         desc=('specify the strength of the regularisation term on the '
+#               'magnitude of the tensor elements (default = 5000). This '
+#               'only applies to the non-linear methods'))
 
 
 class FitTensorOutputSpec(TraitedSpec):
@@ -103,10 +103,10 @@ class EstimateFODInputSpec(MRTrix3BaseInputSpec):
         mandatory=True,
         desc='output WM ODF')
     gm_txt = File(argstr='%s', position=-4, desc='GM response text file')
-    gm_odf = File('gm.mif', usedefault=True, argstr='%s',
+    gm_odf = File('gm.mif', argstr='%s',
                   position=-3, desc='output GM ODF')
     csf_txt = File(argstr='%s', position=-2, desc='CSF response text file')
-    csf_odf = File('csf.mif', usedefault=True, argstr='%s',
+    csf_odf = File('csf.mif', argstr='%s',
                    position=-1, desc='output CSF ODF')
     mask_file = File(exists=True, argstr='-mask %s', desc='mask image')
 
