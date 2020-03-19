@@ -12,7 +12,9 @@ import warnings
 
 from ...utils.filemanip import split_filename, fname_presuffix
 
-from ..base import traits, TraitedSpec, InputMultiPath, File, isdefined
+from ..base import (
+    traits, TraitedSpec, InputMultiPath, OutputMultiPath, File, isdefined,
+    Directory)
 from .base import FSLCommand, FSLCommandInputSpec, Info
 
 
@@ -1548,7 +1550,8 @@ class EddyQuadInputSpec(FSLCommandInputSpec):
         exists=True,
         mandatory=True,
         argstr="--eddyIdx %s",
-        desc=("File containing indices for all volumes into acquisition " "parameters"),
+        desc=("File containing indices for all volumes into acquisition "
+              "parameters"),
     )
     param_file = File(
         exists=True,
@@ -1718,5 +1721,91 @@ class EddyQuad(FSLCommand):
         clean_volumes = os.path.join(out_dir, "vols_no_outliers.txt")
         if os.path.isfile(clean_volumes):
             outputs["clean_volumes"] = clean_volumes
+
+        return outputs
+
+
+class EddySquadInputSpec(FSLCommandInputSpec):
+    
+    quad_dirs = File(
+        exists=True,
+        argstr='%s',
+        desc="Text file containing a list of QUAD generated folders.")
+    grouping = File(
+        argstr='--grouping=%s',
+        desc=("Text file containing a continuous or discrete variable for the "
+              "listed subjects. This variable will be used to generate two "
+              "different types of plots in the study - wise report. If the "
+              "variable is categorical, violin plots showing the distributions"
+              " of most QC metrics for each class will be added to the report."
+              " If the variable is continuous, scatter plots with a linear "
+              "regression model fit will be added to the report."))
+    update = traits.Bool(
+        argstr='--update',
+        desc=("Update existing eddy_squad reports after generating group "
+              "report or using a pre-existing [group_db.json] one."))
+    group_db = File(
+        argstr='--group-db=%s',
+        desc=("Text file containing a categorical or continuous variable for "
+              "the pre-existing database. The format is the same as the one "
+              "used before.")
+    )
+    output_dir = Directory(
+        'squad', usedefault=True,
+        argstr='--output_dir=%s',
+        desc=("Name of output directory"))
+
+
+class EddySquadOutputSpec(TraitedSpec):
+    
+    group_db_json = File(
+        exists=True,
+        desc=("Study-wise database containing quality metrics and data "
+              "info."))
+    group_qc_pdf = File(exists=True, desc="Study-wise QC report.")
+    qc_updated_pdf = File(
+        desc=("This file will be generated in each listed folder when updating"
+              " the single-subject QC reports. Single QC metrics will be "
+              "flagged as outliers and highlighted using a traffic-light "
+              "colouring system on the first page. Extra pages will be added "
+              "to the original single-subject QC report containing study-wise "
+              "plots where the subject's performance are clearly "
+              "highlighted."))
+
+
+class EddySquad(FSLCommand):
+    """
+    Interface for FSL eddy_squad, a tool for generating study-wise reports
+    of storing the quality assessment indices.
+    `User guide <https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddyqc/UsersGuide>`__
+
+    Examples
+    --------
+
+    >>> from nipype.interfaces.fsl import EddySquad
+    >>> squad = EddySquad()
+    >>> squad.inputs.quad_dirs  = 'quad_dirs.txt'
+    >>> squad.inputs.grouping   = 'subject_groupings.txt'
+    >>> squad.inputs.output_dir = 'output_dir'
+    >>> squad.cmdline
+    'eddy_squad quad_dirs.txt --grouping=subject_groupings.txt' --output_dir='output_dir'
+    >>> res = squad.run() # doctest: +SKIP
+
+    """
+
+    _cmd = "eddy_squad"
+    input_spec = EddySquadInputSpec
+    output_spec = EddySquadOutputSpec
+
+    def _list_outputs(self):
+        outputs = self.output_spec().get()
+
+        outputs["group_db_json"] = os.path.join(self.inputs.output_dir,
+                                                "group_db.json")
+        outputs["group_qc_pdf"] = os.path.join(self.inputs.output_dir,
+                                               "group_qc.pdf")
+        if isdefined(self.inputs.group_db):
+            outputs['qc_updated_pdf'] = os.path.join(self.inputs.output_dir,
+                                                     'qc_updated.pdf ')
 
         return outputs
