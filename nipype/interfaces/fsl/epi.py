@@ -1523,10 +1523,11 @@ class EddyCorrect(FSLCommand):
 
     def __init__(self, **inputs):
         warnings.warn(
-            ("Deprecated: Please use nipype.interfaces.fsl.epi.Eddy " "instead"),
+            ("Deprecated: Please use nipype.interfaces.fsl.epi.Eddy "
+             "instead"),
             DeprecationWarning,
         )
-        return super(EddyCorrect, self).__init__(**inputs)
+        super(EddyCorrect, self).__init__(**inputs)
 
     def _run_interface(self, runtime):
         runtime = super(EddyCorrect, self)._run_interface(runtime)
@@ -1644,6 +1645,7 @@ class EddyQuadOutputSpec(TraitedSpec):
             "eddy_corrected_data_clean --vols=vols_no_outliers.txt`"
         ),
     )
+    output_dir = Directory(exists=True, desc="Output directory")
 
 
 class EddyQuad(FSLCommand):
@@ -1690,7 +1692,7 @@ class EddyQuad(FSLCommand):
             out_dir = os.path.abspath(os.path.basename(self.inputs.base_name) + ".qc")
         else:
             out_dir = os.path.abspath(self.inputs.output_dir)
-
+        outputs["output_dir"] = out_dir
         outputs["qc_json"] = os.path.join(out_dir, "qc.json")
         outputs["qc_pdf"] = os.path.join(out_dir, "qc.pdf")
 
