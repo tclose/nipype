@@ -862,6 +862,10 @@ class SH2AmpInputSpec(CommandLineInputSpec):
         argstr="-nonnegative", desc="cap all negative amplitudes to zero"
     )
 
+    gradients_format = traits.Bool(
+        argstr="-gradient",
+        desc="assume directions are in gradients format (required for <3.0)")
+
 
 class SH2AmpOutputSpec(TraitedSpec):
     out_file = File(exists=True, desc="the output convoluted spherical harmonics file")
